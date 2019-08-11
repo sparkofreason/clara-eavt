@@ -31,34 +31,42 @@
 
 (def store
   {:max-eid 1
+   :max-tx-id 0
    :eav-index {0 {:todo/text "Buy eggs"}
                1 {:todo/tag :not-cheese}}})
 
 (def eavs
-  [(eav/->EAV "todo1-id" :todo/text "Buy milk")
-   (eav/->EAV "todo1-id" :todo/tag :milk)
-   (eav/->EAV 0 :todo/text "Buy eggs")
-   (eav/->EAV 0 :todo/tag :eggs)
-   (eav/->EAV -3 :todo/text "Buy ham")
-   (eav/->EAV -3 :todo/tag :ham)
-   (eav/->EAV 1 :todo/text "Buy cheese")
-   (eav/->EAV 1 :todo/tag :cheese)
-   (eav/->EAV :do :eav/transient "something")
-   (eav/->EAV -9 :eav/transient "something")])
+  [(eav/->EAVT "todo1-id" :todo/text "Buy milk" 1)
+   (eav/->EAVT "todo1-id" :todo/tag :milk 1)
+   (eav/->EAVT 0 :todo/text "Buy eggs" 1)
+   (eav/->EAVT 0 :todo/tag :eggs 1)
+   (eav/->EAVT -3 :todo/text "Buy ham" 1)
+   (eav/->EAVT -3 :todo/tag :ham 1)
+   (eav/->EAVT 1 :todo/text "Buy cheese" 1)
+   (eav/->EAVT 1 :todo/tag :cheese 1)
+   (eav/->EAVT :do :eav/transient "something" 1)
+   (eav/->EAVT -9 :eav/transient "something" 1)])
 
 (def insertables'
-  [(eav/->EAV 2 :todo/text "Buy milk")
-   (eav/->EAV 2 :todo/tag :milk)
-   (eav/->EAV 0 :todo/tag :eggs)
-   (eav/->EAV 3 :todo/text "Buy ham")
-   (eav/->EAV 3 :todo/tag :ham)
-   (eav/->EAV 1 :todo/text "Buy cheese")
-   (eav/->EAV 1 :todo/tag :cheese)
-   (eav/->EAV :do :eav/transient "something")
-   (eav/->EAV 4 :eav/transient "something")])
+  [(eav/->EAVT 2 :todo/text "Buy milk" :now)
+   (eav/->EAVT 2 :todo/text "Buy milk" 1)
+   (eav/->EAVT 2 :todo/tag :milk :now)
+   (eav/->EAVT 2 :todo/tag :milk 1)
+   (eav/->EAVT 0 :todo/tag :eggs :now)
+   (eav/->EAVT 0 :todo/tag :eggs 1)
+   (eav/->EAVT 3 :todo/text "Buy ham" :now)
+   (eav/->EAVT 3 :todo/text "Buy ham" 1)
+   (eav/->EAVT 3 :todo/tag :ham :now)
+   (eav/->EAVT 3 :todo/tag :ham 1)
+   (eav/->EAVT 1 :todo/text "Buy cheese" :now)
+   (eav/->EAVT 1 :todo/text "Buy cheese" 1)
+   (eav/->EAVT 1 :todo/tag :cheese :now)
+   (eav/->EAVT 1 :todo/tag :cheese 1)
+   (eav/->EAVT :do :eav/transient "something" :now)
+   (eav/->EAVT 4 :eav/transient "something" :now)])
 
 (def retractables'
-  [(eav/->EAV 1 :todo/tag :not-cheese)])
+  [(eav/->EAVT 1 :todo/tag :not-cheese :now)])
 
 (def tempids'
   {"todo1-id" 2
@@ -77,7 +85,7 @@
 
 (deftest -eavs-test
   (testing "Tempids are replaced with generated eids, eids are left alone"
-    (let [store' (store/-eavs store [(eav/->EAV 1 :todo/tag :not-cheese)])
+    (let [store' (store/-eavs store [(eav/->EAVT 1 :todo/tag :not-cheese :now)])
           {:keys [retractables max-eid eav-index]} store']
       (are [x y] (= x y)
         retractables' retractables
@@ -90,5 +98,6 @@
             :retractables retractables'
             :tempids tempids'
             :max-eid 4
+            :max-tx-id 1
             :eav-index eav-index'}
            (store/+eavs store eavs)))))

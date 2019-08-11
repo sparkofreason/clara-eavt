@@ -2,8 +2,8 @@
   "A store keeps track of max-eid and maintains an EAV index."
   (:require [clara-eav.eav :as eav]
             [medley.core :as medley]
-    #?(:clj [clojure.spec.alpha :as s]
-       :cljs [cljs.spec.alpha :as s])))
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])))
 
 (def ^:dynamic *store*
   "Dynamic atom of store to be used in rule productions, similar to other
@@ -27,17 +27,19 @@
       (neg-int? e)))
 
 (s/def ::max-eid integer?)
+(s/def ::max-tx-id integer?)
 (s/def ::eav-index map?)
 (s/def ::insertables ::eav/record-seq)
 (s/def ::retractables ::eav/record-seq)
 (s/def ::tempids (s/map-of tempid? integer?))
-(s/def ::store (s/keys :req-un [::max-eid ::eav-index]))
+(s/def ::store (s/keys :req-un [::max-eid ::max-tx-id ::eav-index]))
 (s/def ::store-tx
-  (s/keys :req-un [::max-eid ::eav-index]
+  (s/keys :req-un [::max-eid ::max-tx-id ::eav-index]
           :opt-un [::insertables ::retractables ::tempids]))
 
 (def init
-  {:max-eid 0
+  {:max-eid   0
+   :max-tx-id 0
    :eav-index {}})
 
 (s/fdef state
@@ -57,7 +59,8 @@
   "Subtracts `eav` from `store` updating it's `:eav-index`. Returns the updated
   `store` including `:retractables` eavs."
   [store eav]
-  (let [{:keys [e a]} eav]
+  (let [{:keys [e a v]} eav
+        eav (assoc eav :tx-id :now)]
     (if (tempid? e)
       (throw (ex-info "Tempids not allowed in retractions" {:e e}))
       (-> store
@@ -74,7 +77,9 @@
   including `:retractables` eavs."
   [store eavs]
   (reduce -eav
-          (assoc store :retractables [])
+          (-> store
+              (update :max-tx-id inc)
+              (assoc :retractables []))
           eavs))
 
 (s/fdef +eav
@@ -86,29 +91,31 @@
   updated `store` including `:insertables` eavs, `:retractables` eavs and 
   resolved `:tempids` map of {tempid -> eid}."
   [store eav]
-  (let [{:keys [tempids max-eid eav-index]} store
+  (let [{:keys [tempids max-eid max-tx-id eav-index]} store
         {:keys [e a v]} eav
         transient? (= :eav/transient a)]
     (if (tempid? e)
       (if-some [eid (get tempids e)]
         (-> store
-            (update :insertables conj (assoc eav :e eid))
+            (update :insertables conj (assoc eav :e eid :tx-id :now))
+            (cond-> (not transient?) (update :insertables conj (assoc eav :e eid :tx-id max-tx-id)))
             (cond-> (not transient?) (assoc-in [:eav-index eid a] v)))
         (let [new-eid (inc max-eid)]
           (-> store
-              (update :insertables conj (assoc eav :e new-eid))
+              (update :insertables conj (assoc eav :e new-eid :tx-id :now))
+              (cond-> (not transient?) (update :insertables conj (assoc eav :e new-eid :tx-id max-tx-id)))
               (assoc-in [:tempids e] new-eid)
               (assoc :max-eid new-eid)
               (cond-> (not transient?) (assoc-in [:eav-index new-eid a] v)))))
       (if transient?
-        (update store :insertables conj eav)
+        (update store :insertables conj (assoc eav :tx-id :now))
         (if-some [v' (get-in eav-index [e a])]
           (cond-> store
-                  (not= v v') (-> (update :insertables conj eav)
-                                  (update :retractables conj (assoc eav :v v'))
+                  (not= v v') (-> (update :insertables conj (assoc eav :tx-id :now) eav)
+                                  (update :retractables conj (assoc eav :v v' :tx-id :now))
                                   (assoc-in [:eav-index e a] v)))
           (-> store
-              (update :insertables conj eav)
+              (update :insertables conj (assoc eav :tx-id :now) eav)
               (assoc-in [:eav-index e a] v)))))))
 
 (s/fdef +eavs
@@ -122,7 +129,9 @@
   {tempid -> eid}."
   [store eavs]
   (reduce +eav
-          (assoc store :insertables []
-                       :retractables []
-                       :tempids {})
+          (-> store
+              (update :max-tx-id inc)
+              (assoc :insertables []
+                     :retractables []
+                     :tempids {}))
           eavs))

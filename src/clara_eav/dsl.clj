@@ -51,10 +51,11 @@
 (s/def ::eav
   (s/and vector?
          (s/conformer vec vec)
-         #(<= 1 (count %) 3)
+         #(<= 1 (count %) 4)
          (s/or ::eav1 (s/cat ::e ::e)
                ::eav2 (s/cat ::e ::e, ::a ::a)
-               ::eav3 (s/cat ::e ::e, ::a ::a, ::v ::v))))
+               ::eav3 (s/cat ::e ::e, ::a ::a, ::v ::v)
+               ::eav4 (s/cat ::e ::e, ::a ::a, ::v ::v, ::tx-id ::tx-id))))
 
 (s/def ::e #(or (keyword? %)
                 (integer? %)
@@ -62,6 +63,7 @@
 (s/def ::a #(or (keyword? %)
                 (symbol? %)))
 (s/def ::v some?)
+(s/def ::tx-id some?)
 
 (s/def ::sexp list?)
 (s/def ::bind symbol?)
@@ -82,13 +84,14 @@
 (defn- conditions
   "Transforms a fact conditions from EAV fact form to Clara fact form."
   [eav]
-  (let [{::keys [e a v]} eav]
+  (let [{::keys [e a v tx-id]} eav]
     (remove nil? (list (when (not= e '_)
                          (list '= '(:e this) e))
                        (when (symbol? a)
                          (list '= '(:a this) a))
-                       (when (some? v)
-                         (list '= '(:v this) v))))))
+                       (when (and (some? v) (not= v '_))
+                         (list '= '(:v this) v))
+                       (list '= '(:tx-id this) (or tx-id :now))))))
 
 (defn- fact
   "Transform a fact-eav into a fact-clara"
