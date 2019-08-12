@@ -49,7 +49,7 @@
   "Remove extra keys from intermediary steps of computations and returns just 
   the store state."
   [store]
-  (select-keys store [:max-eid :eav-index]))
+  (select-keys store [:max-eid :max-tx-id :eav-index]))
 
 (s/fdef -eav
   :args (s/cat :store ::store-tx
@@ -111,11 +111,11 @@
         (update store :insertables conj (assoc eav :tx-id :now))
         (if-some [v' (get-in eav-index [e a])]
           (cond-> store
-                  (not= v v') (-> (update :insertables conj (assoc eav :tx-id :now) eav)
+                  (not= v v') (-> (update :insertables conj (assoc eav :tx-id :now) (assoc eav :tx-id max-tx-id))
                                   (update :retractables conj (assoc eav :v v' :tx-id :now))
                                   (assoc-in [:eav-index e a] v)))
           (-> store
-              (update :insertables conj (assoc eav :tx-id :now) eav)
+              (update :insertables conj (assoc eav :tx-id :now) (assoc eav :tx-id max-tx-id))
               (assoc-in [:eav-index e a] v)))))))
 
 (s/fdef +eavs

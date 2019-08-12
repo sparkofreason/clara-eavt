@@ -44,10 +44,10 @@
                '((= (:e this) 1) (= (:v this) false) (= (:tx-id this) :now))
                [1 :todo/done false]
 
-               '((= (:e this) 1) (= (:v this) false) (= (:tx-id this) ?tx-id))
+               '((= (:e this) 1) (= (:v this) false) (= (:tx-id this) ?tx-id) (integer? ?tx-id))
                [1 :todo/done false '?tx-id]
 
-               '((= (:e this) 1) (= (:tx-id this) ?tx-id))
+               '((= (:e this) 1) (= (:tx-id this) ?tx-id) (integer? ?tx-id))
                [1 :todo/done '_ '?tx-id]
 
                '((= (:v this) false) (= (:tx-id this) :now))

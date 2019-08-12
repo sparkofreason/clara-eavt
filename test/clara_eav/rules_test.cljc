@@ -1,12 +1,12 @@
 (ns clara-eav.rules-test
   (:require [clara-eav.test-helper :as test-helper]
-    #?@(:clj [[clara.rules :as rules]
-            [clara-eav.rules :as eav.rules]
-            [clojure.test :refer [deftest testing is are use-fixtures]]]
-        :cljs [[clara.rules :as rules :include-macros true]
-               [clara-eav.rules :as eav.rules :include-macros true]
-               [cljs.test :refer-macros [deftest testing is are
-                                         use-fixtures]]])))
+            #?@(:clj  [[clara.rules :as rules]
+                       [clara-eav.rules :as eav.rules]
+                       [clojure.test :refer [deftest testing is are use-fixtures]]]
+                :cljs [[clara.rules :as rules :include-macros true]
+                       [clara-eav.rules :as eav.rules :include-macros true]
+                       [cljs.test :refer-macros [deftest testing is are
+                                                 use-fixtures]]])))
 
 (use-fixtures :once test-helper/spec-fixture)
 
@@ -32,7 +32,7 @@
 (eav.rules/defrule milk-and-flakes-r
   [[_ :todo/text "Buy milk"]]
   =>
-  (eav.rules/upsert-unconditional! flakes))
+  (eav.rules/upsert-unconditional! [flakes]))
 
 (eav.rules/defrule milk2-and-cookies-r
   [[_ :todo/text "Buy milk2"]]
@@ -43,7 +43,7 @@
   [[::remove :eav/transient ?e]]
   [?eav <- [?e ?a ?v]]
   =>
-  (eav.rules/retract! ?eav))
+  (eav.rules/retract! [?eav]))
 
 ;; Queries
 
@@ -102,19 +102,20 @@
           ;; - store maintenance
           session1 (upsert session [new1 milk1 eggs1])
           new1' (dissoc new1 :eav/eid)
-          store1s {:max-eid 3
+          store1s {:max-eid   3
+                   :max-tx-id 2
                    :eav-index {:new new1'
-                               1 milk1
-                               2 eggs1
-                               3 flakes}}
+                               1    milk1
+                               2    eggs1
+                               3    flakes}}
           milk1s (assoc milk1 :eav/eid 1)
           eggs1s (assoc eggs1 :eav/eid 2)
           flakes1s (assoc flakes :eav/eid 3)
           all1 (list new1 milk1s eggs1s flakes1s)
           _ (are [x y] (= x y)
-              new1 (todo session1 :new)
-              all1 (todos session1)
-              store1s (:store session1))
+                       new1 (todo session1 :new)
+                       all1 (todos session1)
+                       store1s (:store session1))
 
           ;; - upsert via call
           ;; - upsert! via milk2-and-cookies-r rule
@@ -124,30 +125,32 @@
           session2 (upsert session1 [new2 milk2 ham2])
           new2' (dissoc new2 :eav/eid)
           milk2' (dissoc milk2 :eav/eid)
-          store2s {:max-eid 6
+          store2s {:max-eid   6
+                   :max-tx-id 4
                    :eav-index {:new new2'
-                               1 milk2'
-                               2 eggs1
-                               3 flakes
-                               4 ham2
-                               5 cookie-a
-                               6 cookie-b}}
+                               1    milk2'
+                               2    eggs1
+                               3    flakes
+                               4    ham2
+                               5    cookie-a
+                               6    cookie-b}}
           ham2s (assoc ham2 :eav/eid 4)
           cookie-as (assoc cookie-a :eav/eid 5)
           cookie-bs (assoc cookie-b :eav/eid 6)
           all2 (list eggs2 flakes1s new2 milk2 ham2s cookie-as cookie-bs)
           eggs3 (assoc eggs1 :eav/eid 2)
           _ (are [x y] (= x y)
-              new2 (todo session2 :new)
-              all2 (todos session2)
-              store2s (:store session2))
+                       new2 (todo session2 :new)
+                       all2 (todos session2)
+                       store2s (:store session2))
 
           ;; - retract via call
           ;; - entity accumulator via todo-q query
           ;; - entities accumulator via todos-q query
           ;; - store maintenance
           session3 (retract session2 [new2 eggs3])
-          store3s {:max-eid 6
+          store3s {:max-eid   6
+                   :max-tx-id 5
                    :eav-index {1 milk2'
                                3 flakes
                                4 ham2
@@ -155,9 +158,9 @@
                                6 cookie-b}}
           all3 (list flakes1s milk2 ham2s cookie-as cookie-bs)
           _ (are [x y] (= x y)
-              nil (todo session3 :new)
-              all3 (todos session3)
-              store3s (:store session3))
+                       nil (todo session3 :new)
+                       all3 (todos session3)
+                       store3s (:store session3))
 
           ;; - upsert transient via call
           ;; - retract! via remove-r rule
@@ -166,15 +169,16 @@
           ;; - store maintenance
           session4 (upsert session3 [[::remove :eav/transient 5]
                                      [::remove :eav/transient 6]])
-          store4s {:max-eid 6
+          store4s {:max-eid   6
+                   :max-tx-id 10
                    :eav-index {1 milk2'
                                3 flakes
                                4 ham2}}
           all4 (list flakes1s milk2 ham2s)
           _ (are [x y] (= x y)
-              all4 (todos session4)
-              [] (transients session4)
-              store4s (:store session4))
+                       all4 (todos session4)
+                       [] (transients session4)
+                       store4s (:store session4))
 
           ;; - upsert via call
           ;; - tempids (string and negative int) resolution
@@ -184,7 +188,8 @@
           session5 (upsert session4 [toast5 jam5])
           toast5' (dissoc toast5 :eav/eid)
           jam5' (dissoc jam5 :eav/eid)
-          store5s {:max-eid 8
+          store5s {:max-eid   8
+                   :max-tx-id 11
                    :eav-index {1 milk2'
                                3 flakes
                                4 ham2
@@ -194,9 +199,9 @@
           jam5s (assoc jam5 :eav/eid 8)
           all5 (list flakes1s milk2 ham2s jam5s toast5s)
           tempids5s {"toast-tempid" 7
-                     -7 8}
+                     -7             8}
           _ (are [x y] (= x y)
-              (set all5) (set (todos session5))
-              [] (transients session5)
-              store5s (:store session5)
-              tempids5s (:tempids session5))])))
+                       (set all5) (set (todos session5))
+                       [] (transients session5)
+                       store5s (:store session5)
+                       tempids5s (:tempids session5))])))

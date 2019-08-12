@@ -11,6 +11,7 @@
 (deftest state-test
   (testing "Store cleaned after transaction computation"
     (let [store {:max-eid 0
+                 :max-tx-id 0
                  :eav-index {}}
           store-tx (assoc store
                      :insertables []

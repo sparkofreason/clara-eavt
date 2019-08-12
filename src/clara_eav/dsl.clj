@@ -6,7 +6,6 @@
   where you would want `fact-type-fn` to return vectors, which is unlikely."
   (:require [clojure.walk :as walk]
             [clojure.spec.alpha :as s]
-            [clojure.core.match :as match]
             [clara.rules :as rules]))
 
 (s/def ::defrule
@@ -84,14 +83,16 @@
 (defn- conditions
   "Transforms a fact conditions from EAV fact form to Clara fact form."
   [eav]
-  (let [{::keys [e a v tx-id]} eav]
-    (remove nil? (list (when (not= e '_)
-                         (list '= '(:e this) e))
-                       (when (symbol? a)
-                         (list '= '(:a this) a))
-                       (when (and (some? v) (not= v '_))
-                         (list '= '(:v this) v))
-                       (list '= '(:tx-id this) (or tx-id :now))))))
+  (let [{::keys [e a v tx-id]} eav
+        c (remove nil? (list (when (not= e '_)
+                               (list '= '(:e this) e))
+                             (when (symbol? a)
+                               (list '= '(:a this) a))
+                             (when (and (some? v) (not= v '_))
+                               (list '= '(:v this) v))))]
+       (if tx-id
+         (concat c [(list '= '(:tx-id this) tx-id) (list 'integer? tx-id)])
+         (concat c [(list '= '(:tx-id this) :now)]))))
 
 (defn- fact
   "Transform a fact-eav into a fact-clara"
@@ -111,9 +112,9 @@
 (defn- node
   "If node matches rules transform it, otherwise return it unchanged."
   [node]
-  (match/match node
-    [::fact-eav fact-eav] [::fact-clara (fact fact-eav)]
-    :else node))
+  (if (and (vector? node) (= ::fact-eav (first node)))
+    [::fact-clara (fact (second node))]
+    node))
 
 (defn- transform
   "Convert the ClaraEAV form containing triplets to plain Clara rule based on 

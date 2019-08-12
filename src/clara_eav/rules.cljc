@@ -163,3 +163,22 @@
   whatever entity is first. Ex: `[?new-todo-template <- ce/entity :from 
   [[:new-todo]]]`."
   (accumulators/grouping-by :e groups->first-entity))
+
+;; Current facts/entties (= tx-id :now)
+
+(defn current-facts
+  [session]
+  (for [e (-> session :store :eav-index keys)
+        a (-> session (get-in [:store :eav-index e]) keys)]
+    [e a (get-in session [:store :eav-index e a])]))
+
+(defn current-entities
+  [session]
+  (mapv (fn [[e avs]]
+          (assoc avs :eav/eid e))
+        (get-in session [:store :eav-index])))
+
+(defn snapshot
+  [base-session session]
+  (-> base-session
+      (upsert (current-entities session))))

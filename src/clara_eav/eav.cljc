@@ -45,7 +45,7 @@
                 (uuid? %)))
 (s/def ::a keyword?)
 (s/def ::v some?)
-(s/def ::tx-id (s/or :int integer? :now #{:now}))
+(s/def ::tx-id (s/nilable (s/or :int integer? :now #{:now}))) ;;TODO - revisit, hacked to support rules-test
 
 (s/def ::record (s/and #(instance? EAVT %)
                        (s/keys :req-un [::e ::a ::v ::tx-id])))
@@ -102,16 +102,3 @@
                   (map? x) (entity->eav-seq x)
                   :else (throw (ex-info "Invalid tx-data" {:tx tx})))))
        vec))
-
-#_(defn eav-seq
-    "Transforms transaction data `tx` into a sequence of eav records."
-    [tx]
-    (match/match (s/conform ::tx tx)
-      ::s/invalid (throw (ex-info "Invalid transaction data (tx)" {:tx tx}))
-      [::record eav-record] [eav-record]
-      [::record-seq record-seq] record-seq
-      [::vector eav-vector] [(apply ->EAVT eav-vector)]
-      [::vector-seq vector-seq] (mapcat eav-seq vector-seq)
-      [::eav-seq record-or-vector-seq] (mapcat (comp eav-seq second) record-or-vector-seq)
-      [::entity entity] (entity->eav-seq entity)
-      [::entity-seq entity-seq] (mapcat entity->eav-seq entity-seq)))

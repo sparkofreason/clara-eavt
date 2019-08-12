@@ -1,7 +1,7 @@
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        org.clojure/core.match {:mvn/version "0.3.0"}
         medley {:mvn/version "1.1.0"}
         com.cerner/clara-rules {:mvn/version "0.19.1"}}
  :aliases
- {:test {:extra-paths ["test"]}}}
+ {:test {:extra-paths ["test"]}
+  :dev {:extra-paths ["sidecar"]}}}
