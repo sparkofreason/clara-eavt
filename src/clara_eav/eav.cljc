@@ -45,7 +45,7 @@
                 (uuid? %)))
 (s/def ::a keyword?)
 (s/def ::v some?)
-(s/def ::tx-id (s/nilable (s/or :int integer? :now #{:now}))) ;;TODO - revisit, hacked to support rules-test
+(s/def ::tx-id (s/or :int integer? :now #{:now}) #_(s/nilable (s/or :int integer? :now #{:now}))) ;;TODO - revisit, hacked to support rules-test
 
 (s/def ::record (s/and #(instance? EAVT %)
                        (s/keys :req-un [::e ::a ::v ::tx-id])))
