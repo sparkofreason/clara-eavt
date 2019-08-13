@@ -1,7 +1,7 @@
-(ns clara-eav.store-test
-  (:require [clara-eav.eav :as eav]
-            [clara-eav.store :as store]
-            [clara-eav.test-helper :as test-helper]
+(ns clara-eavt.store-test
+  (:require [clara-eavt.eav :as eav]
+            [clara-eavt.store :as store]
+            [clara-eavt.test-helper :as test-helper]
     #?(:clj [clojure.test :refer [deftest testing is are use-fixtures]]
        :cljs [cljs.test :refer-macros [deftest testing is are use-fixtures]]))
   #?(:clj (:import (clojure.lang ExceptionInfo))))

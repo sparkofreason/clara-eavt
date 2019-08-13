@@ -1,4 +1,4 @@
-(require '[clara-eav.rules :refer :all]
+(require '[clara-eavt.rules :refer :all]
          '[clara.rules :as rules])
 
 (defrule working!

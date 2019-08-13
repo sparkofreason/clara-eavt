@@ -1,8 +1,8 @@
-(ns clara-eav.session-test
-  (:require [clara-eav.test-helper :as test-helper]
+(ns clara-eavt.session-test
+  (:require [clara-eavt.test-helper :as test-helper]
             [clara.rules.engine :as engine]
-            [clara-eav.store :as store]
-            [clara-eav.session :as session]
+            [clara-eavt.store :as store]
+            [clara-eavt.session :as session]
             #?(:clj [clojure.test :refer [deftest testing is are use-fixtures]]
                :cljs [cljs.test :refer-macros [deftest testing is are use-fixtures]])))
 

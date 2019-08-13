@@ -1,7 +1,7 @@
-(ns clara-eav.dsl-test
+(ns clara-eavt.dsl-test
   (:require [clojure.spec.alpha :as s]
-            [clara-eav.test-helper :as test-helper]
-            [clara-eav.dsl :as dsl]
+            [clara-eavt.test-helper :as test-helper]
+            [clara-eavt.dsl :as dsl]
             [clojure.test :refer [deftest testing is are use-fixtures]]))
 
 (use-fixtures :once test-helper/spec-fixture)
@@ -97,7 +97,7 @@
     [:eav/all (= (:tx-id this) :now)]
     [:eav/all (= (:e this) :eav/transient) (= (:tx-id this) :now)]
     [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) :now)]
-    [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) ?tx-id)]
+    [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) ?tx-id) (integer? ?tx-id)]
     [?toggle <- Toggle (= e ?e)]
     [?eav <- :todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) :now)]
     [:test (= ?e ?v)]
@@ -131,7 +131,7 @@
     [:eav/all (= (:tx-id this) :now)]
     [:eav/all (= (:e this) :eav/transient) (= (:tx-id this) :now)]
     [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) :now)]
-    [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) ?tx-id)]
+    [:todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) ?tx-id) (integer? ?tx-id)]
     [?toggle <- Toggle (= e ?e)]
     [?eav <- :todo/done (= (:e this) ?e) (= (:v this) ?v) (= (:tx-id this) :now)]
     [:test (= ?e ?v)]

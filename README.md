@@ -29,7 +29,7 @@ ClaraEAV releases are on [Clojars](https://clojars.org/clyfe/clara-eav).
 You should be familiar with [Clara Rules](https://www.clara-rules.org) before 
 using ClaraEAV.
 The API docs are on [Cljdoc](https://cljdoc.xyz/d/clyfe/clara-eav/CURRENT).
-For a more complete example see [this test](test/clara_eav/rules_test.cljc).
+For a more complete example see [this test](test/clara_eavt/rules_test.cljc).
 
 ```clojure
 (ns my.sample
@@ -81,7 +81,7 @@ equivalence between n-tuples and triplets is illustrated below:
  [234 :todo/priority 3]]
 ```
 
-EAVs are of type record `clara_eav.eav.EAV` and can be destructured as 3-valued
+EAVs are of type record `clara_eavt.eav.EAV` and can be destructured as 3-valued
 vectors or as maps with `:e :a :v` keys.
 
 #### Transaction data (tx)

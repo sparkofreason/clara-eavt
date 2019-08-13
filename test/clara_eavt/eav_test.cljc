@@ -1,14 +1,14 @@
-(ns clara-eav.eav-test
-  (:require [clara-eav.test-helper :as test-helper]
+(ns clara-eavt.eav-test
+  (:require [clara-eavt.test-helper :as test-helper]
             #?@(:clj  [[clojure.test :refer [deftest testing is are use-fixtures]]
                        [clojure.spec.alpha :as s]
-                       [clara-eav.eav :as eav]]
+                       [clara-eavt.eav :as eav]]
                 :cljs [[cljs.test :refer-macros [deftest testing is are use-fixtures]]
                        [cljs.spec.alpha :as s]
-                       [clara-eav.eav :as eav :refer [EAV]]])
+                       [clara-eavt.eav :as eav :refer [EAV]]])
             [clojure.set :as set])
   #?(:clj (:import
-            (clara_eav.eav EAVT)
+            (clara_eavt.eav EAVT)
             (clojure.lang Associative)
             (java.util UUID))))
 

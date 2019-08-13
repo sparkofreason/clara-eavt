@@ -1,15 +1,15 @@
-(ns clara-eav.rules
+(ns clara-eavt.rules
   "Thin layer over Clara-Rules common API functions that simplifies working with
   EAV triplets, and adds some specific features like transient EAVs, upserts and
   accumulators that rebuild entity maps out of EAVs."
   (:require [clara.rules :as rules]
             [clara.rules.engine :as engine]
             [clara.rules.accumulators :as accumulators]
-            [clara-eav.eav :as eav]
-            [clara-eav.session :as session]
-            [clara-eav.store :as store]
+            [clara-eavt.eav :as eav]
+            [clara-eavt.session :as session]
+            [clara-eavt.store :as store]
     #?@(:clj [[clojure.spec.alpha :as s]
-              [clara-eav.dsl :as dsl]]
+              [clara-eavt.dsl :as dsl]]
         :cljs [[cljs.spec.alpha :as s]]))
   #?(:cljs (:require-macros
              [clara.rules :as rules])))
@@ -29,7 +29,7 @@
   `:ancestors-fn`. Pass name and namespaces `(defsession my-session 'my.rules
   'my.more.rules)`."
   [name & nss]
-  `(do (rules/defsession ~name 'clara-eav.rules ~@nss
+  `(do (rules/defsession ~name 'clara-eavt.rules ~@nss
          :fact-type-fn eav/fact-type-fn
          :ancestors-fn eav/ancestors-fn)
        ~(if (:ns &env)

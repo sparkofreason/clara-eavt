@@ -1,7 +1,7 @@
-(ns ^:no-doc clara-eav.session
+(ns ^:no-doc clara-eavt.session
   "A session wrapper that keeps track of extra state in a state store."
   (:require [clara.rules.engine :as engine]
-            [clara-eav.store :as store]
+            [clara-eavt.store :as store]
     #?(:clj [clojure.spec.alpha :as s]
        :cljs [cljs.spec.alpha :as s])))
 

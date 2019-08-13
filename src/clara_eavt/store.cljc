@@ -1,6 +1,6 @@
-(ns ^:no-doc clara-eav.store
+(ns ^:no-doc clara-eavt.store
   "A store keeps track of max-eid and maintains an EAV index."
-  (:require [clara-eav.eav :as eav]
+  (:require [clara-eavt.eav :as eav]
             [medley.core :as medley]
             #?(:clj  [clojure.spec.alpha :as s]
                :cljs [cljs.spec.alpha :as s])))

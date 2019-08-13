@@ -1,4 +1,4 @@
-(ns clara-eav.test-helper
+(ns clara-eavt.test-helper
   (:require
     [clojure.spec.alpha :as s]
     [pinpointer.core :as p]

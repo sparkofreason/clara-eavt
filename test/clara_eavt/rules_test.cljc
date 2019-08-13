@@ -1,10 +1,10 @@
-(ns clara-eav.rules-test
-  (:require [clara-eav.test-helper :as test-helper]
+(ns clara-eavt.rules-test
+  (:require [clara-eavt.test-helper :as test-helper]
             #?@(:clj  [[clara.rules :as rules]
-                       [clara-eav.rules :as eav.rules]
+                       [clara-eavt.rules :as eav.rules]
                        [clojure.test :refer [deftest testing is are use-fixtures]]]
                 :cljs [[clara.rules :as rules :include-macros true]
-                       [clara-eav.rules :as eav.rules :include-macros true]
+                       [clara-eavt.rules :as eav.rules :include-macros true]
                        [cljs.test :refer-macros [deftest testing is are
                                                  use-fixtures]]])))
 
@@ -60,7 +60,7 @@
 ;; Session
 
 (eav.rules/defsession session
-  'clara-eav.rules-test)
+  'clara-eavt.rules-test)
 
 ;; Helpers
 

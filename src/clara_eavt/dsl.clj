@@ -1,4 +1,4 @@
-(ns ^:no-doc clara-eav.dsl
+(ns ^:no-doc clara-eavt.dsl
   "Minor sugar over Clara-Rules Expressions such that fact expressions can also
   be given in `[E A V]` triplet form, expanding to `[A (= (:e this) E) (= (:v 
   this) V)]`. We define a parser over expressions that makes the conversions.
